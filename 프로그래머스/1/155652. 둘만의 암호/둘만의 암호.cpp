@@ -18,7 +18,6 @@ string solution(string s, string skip, int index) {
         while (shiftCount < index)
         {
             stringIndex = (stringIndex+1)%26;
-
             if (skipAlphabets[stringIndex])
             {
                 continue;
