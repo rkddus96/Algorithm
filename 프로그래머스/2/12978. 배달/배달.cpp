@@ -5,66 +5,71 @@
 
 using namespace std;
 
+void f(vector<vector<int>>& adj, vector<int>& dist, vector<int>& previousNode)
+{
+    queue<int> q;
+    vector<bool> inQueue(dist.size(), false); // 중복 큐 삽입 방지용
 
-int solution(int N, vector<vector<int> > road, int K) {
+    q.push(1);
+    inQueue[1] = true;
+
+    while (!q.empty())
+    {
+        int curNode = q.front();
+        q.pop();
+        inQueue[curNode] = false;
+
+        for (int i = 1; i < adj.size(); i++)
+        {
+            if (adj[curNode][i] != INT_MAX)
+            {
+                if (dist[curNode] + adj[curNode][i] < dist[i])
+                {
+                    dist[i] = dist[curNode] + adj[curNode][i];
+                    previousNode[i] = curNode;
+
+                    if (!inQueue[i]) {
+                        q.push(i);
+                        inQueue[i] = true;
+                    }
+                }
+            }
+        }
+    }
+}
+
+int solution(int N, vector<vector<int>> road, int K) {
     int answer = 0;
-
-    vector<vector<int>> adj(N+1, vector<int>(N+1, INT_MAX));
-    vector<int> dist(N+1, INT_MAX);
+    vector<vector<int>> adj(N + 1, vector<int>(N + 1, INT_MAX));
+    vector<int> dist(N + 1, INT_MAX);
+    vector<int> previousNode(N + 1, -1);
     dist[1] = 0;
-    vector<bool> visited(N + 1, false);
-    
-    //그래프를 인접행렬로 만들기
+
+    // 인접 행렬 구성 (양방향)
     for (vector<int> e : road)
     {
         int u = e[0], v = e[1], w = e[2];
-        if (w < adj[u][v])
-        {
+        if (w < adj[u][v]) {
             adj[u][v] = w;
             adj[v][u] = w;
         }
     }
-    
 
-    
+    // 자기 자신으로 가는 거리는 0
+    for (int i = 1; i <= N; i++) {
+        adj[i][i] = 0;
+    }
+
+    f(adj, dist, previousNode);
+
+    // 최단 거리가 K 이하인 노드 개수 세기
     for (int i = 1; i <= N; i++)
     {
-        int minDist = INT_MAX;
-        int u = -1;
-        
-        for (int j = 1; j <= N; j++)
-        {
-            if (!visited[j] && dist[j] < minDist)
-            {
-                minDist = dist[j];
-                u = j;
-            }
-        }
-        
-        if (u == -1)
-        {
-            break;
-        }
-        
-        visited[u] = true;
-        
-        for (int v = 1; v <= N; v++)
-        {
-            if (adj[u][v] != INT_MAX && dist[u]+ adj[u][v] < dist[v])
-                dist[v] = dist[u] + adj[u][v];
-        }
-    }
-    
-    
-    
-    for (int d : dist)
-    {
-        if (d <= K)
+        if (dist[i] <= K)
         {
             answer++;
         }
     }
-    
 
     return answer;
 }
