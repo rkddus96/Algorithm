@@ -25,9 +25,5 @@ int solution(string s) {
         
     }
     
-    
-    
-    
-    
     return answer;
 }
